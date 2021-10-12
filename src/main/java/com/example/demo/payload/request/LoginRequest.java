@@ -1,4 +1,4 @@
-package com.example.demo.model.request;
+package com.example.demo.payload.request;
 
 
 import lombok.Data;
@@ -12,5 +12,4 @@ public class LoginRequest {
 
     @NotBlank
     private String password;
-
 }

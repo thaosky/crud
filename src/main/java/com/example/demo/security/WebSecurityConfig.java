@@ -37,7 +37,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        authenticationManagerBuilder
+                .userDetailsService(userDetailsService)  // cung cấp userservice cho spring security
+                .passwordEncoder(passwordEncoder());// cung cấp password encoder
     }
 
     @Bean
@@ -46,19 +48,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    // Password encoder, để Spring Security sử dụng mã hóa mật khẩu người dùng
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Override
+    // Những gì cho phép dùng method .permit()
+    // cấm hoặc yêu cầu xác thực dùng .authenticated()
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/test/**").permitAll()
-                .anyRequest().authenticated();
+                .authorizeRequests()
+                .antMatchers("/api/auth/**").permitAll()// Cho phép tất cả mọi người truy cập vào địa chỉ này
+                .antMatchers("/api/test/**", "/home").permitAll() // Cho phép tất cả mọi người truy cập vào 2 địa chỉ này
+                .anyRequest().authenticated(); // Tất cả các request khác đều cần phải xác thực mới được truy cập
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
